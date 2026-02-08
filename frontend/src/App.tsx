@@ -4,6 +4,7 @@ import type { Note } from './types/Note';
 import NoteList from './components/NoteList';
 import NoteEditor from './components/NoteEditor';
 import Header from './components/Header';
+import AuthPage from './components/AuthPage';
 
 const initialNotes: Note[] = [
   {
@@ -33,6 +34,7 @@ const initialNotes: Note[] = [
 ];
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [activeTab, setActiveTab] = useState<'all' | 'archived' | string>('all');
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(notes[0]?.id || null);
@@ -92,6 +94,10 @@ function App() {
     if (activeTab === 'archived') return 'Archived Notes';
     return `Notes Tagged: ${activeTab}`;
   };
+
+  if (!isAuthenticated) {
+    return <AuthPage onSignIn={() => setIsAuthenticated(true)} />;
+  }
 
   return (
     <div className="flex h-screen bg-base-200 text-base-content overflow-hidden">

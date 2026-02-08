@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Note } from '../types/Note';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft, faTag, faClock, faFloppyDisk, faBoxArchive, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 interface NoteEditorProps {
   note: Note | null;
@@ -62,7 +64,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onDelete, onArchi
     <div className={`flex-1 flex flex-col bg-base-100 p-4 md:p-8 overflow-y-auto ${!note ? 'hidden md:flex' : 'flex'}`}>
       <div className="md:hidden mb-4">
         <button onClick={onBack} className="btn btn-ghost btn-sm gap-2 pl-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <FontAwesomeIcon icon={faChevronLeft} />
           Go Back
         </button>
       </div>
@@ -79,7 +81,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onDelete, onArchi
             
             <div className="flex items-center gap-4 text-sm text-base-content/60">
                 <div className="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                    <FontAwesomeIcon icon={faTag} />
                     <span>Tags</span>
                 </div>
                 <input 
@@ -92,7 +94,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onDelete, onArchi
             </div>
             <div className="flex items-center gap-4 text-sm text-base-content/60 mt-2">
                 <div className="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <FontAwesomeIcon icon={faClock} />
                     <span>Last edited</span>
                 </div>
                 <span>{note.lastEdited}</span>
@@ -103,21 +105,21 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onDelete, onArchi
               onClick={handleSave}
               className="btn btn-outline btn-sm gap-2 justify-start min-w-[140px] flex-1 lg:flex-none"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <FontAwesomeIcon icon={faFloppyDisk} />
               Save Note
             </button>
             <button 
               onClick={() => onArchive(note.id)}
               className="btn btn-outline btn-sm gap-2 justify-start min-w-[140px] flex-1 lg:flex-none"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
+              <FontAwesomeIcon icon={faBoxArchive} />
               {note.isArchived ? 'Unarchive' : 'Archive Note'}
             </button>
             <button 
               onClick={() => onDelete(note.id)}
               className="btn btn-outline btn-error btn-sm gap-2 justify-start min-w-[140px] flex-1 lg:flex-none"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+              <FontAwesomeIcon icon={faTrash} />
               Delete Note
             </button>
          </div>
