@@ -3,6 +3,11 @@ node_modules
 
 # Build output
 dist
+# Ignore any compiled output inside src
+src/**/*.js
+src/**/*.js.map
+src/**/*.d.ts
+src/**/*.d.ts.map
 
 # Environment variables
 .env
