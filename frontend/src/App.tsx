@@ -5,45 +5,42 @@ import NoteList from './components/NoteList';
 import NoteEditor from './components/NoteEditor';
 import Header from './components/Header';
 import AuthPage from './components/AuthPage';
-
-const initialNotes: Note[] = [
-  {
-    id: '1',
-    title: 'React Performance Optimization',
-    tags: ['Dev', 'React'],
-    content: 'Key performance optimization techniques:\n\n1. Code Splitting\n- Use React.lazy() for route-based splitting\n- Implement dynamic imports for heavy components\n\n2. Memoization\n- useMemo for expensive calculations\n- useCallback for function props\n- React.memo for component optimization',
-    lastEdited: '29 Oct 2024',
-    isArchived: false,
-  },
-  {
-    id: '2',
-    title: 'Japan Travel Planning',
-    tags: ['Travel', 'Personal'],
-    content: 'Places to visit:\n- Tokyo (Shibuya, Shinjuku)\n- Kyoto (Fushimi Inari, Kinkaku-ji)\n- Osaka (Dotonbori, Osaka Castle)',
-    lastEdited: '28 Oct 2024',
-    isArchived: false,
-  },
-  {
-    id: '3',
-    title: 'Favorite Pasta Recipes',
-    tags: ['Cooking', 'Recipes'],
-    content: '1. Carbonara: Eggs, Guanciale, Pecorino Romano, Black Pepper\n2. Cacio e Pepe: Pecorino Romano, Black Pepper, Pasta Water',
-    lastEdited: '27 Oct 2024',
-    isArchived: true,
-  }
-];
+import { noteService } from './services/noteService';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [notes, setNotes] = useState<Note[]>(initialNotes);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'archived' | string>('all');
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(notes[0]?.id || null);
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [theme, setTheme] = useState('light');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  // Fetch notes from API
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotes();
+    }
+  }, [isAuthenticated]);
+
+  const fetchNotes = async () => {
+    try {
+      setLoading(true);
+      const fetchedNotes = await noteService.getAllNotes();
+      setNotes(fetchedNotes);
+      if (fetchedNotes.length > 0 && !selectedNoteId) {
+        setSelectedNoteId(fetchedNotes[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const allTags = Array.from(new Set(notes.flatMap(note => note.tags))).sort();
 
@@ -63,30 +60,48 @@ function App() {
 
   const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
 
-  const handleCreateNote = () => {
-    const newNote: Note = {
-      id: Date.now().toString(),
-      title: '',
-      tags: [],
-      content: '',
-      lastEdited: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
-      isArchived: false,
-    };
-    setNotes([newNote, ...notes]);
-    setSelectedNoteId(newNote.id);
+  const handleCreateNote = async () => {
+    try {
+      const newNote = await noteService.createNote({
+        title: 'New Note',
+        tags: [],
+        content: 'Add content to your note here.',
+        lastEdited: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+        isArchived: false,
+      });
+      setNotes([newNote, ...notes]);
+      setSelectedNoteId(newNote.id);
+    } catch (error) {
+      console.error('Error creating note:', error);
+    }
   };
 
-  const handleSaveNote = (updatedNote: Note) => {
-    setNotes(notes.map(n => n.id === updatedNote.id ? updatedNote : n));
+  const handleSaveNote = async (updatedNote: Note) => {
+    try {
+      const saved = await noteService.updateNote(updatedNote.id, updatedNote);
+      setNotes(notes.map(n => n.id === saved.id ? saved : n));
+    } catch (error) {
+      console.error('Error saving note:', error);
+    }
   };
 
-  const handleDeleteNote = (id: string) => {
-    setNotes(notes.filter(n => n.id !== id));
-    if (selectedNoteId === id) setSelectedNoteId(null);
+  const handleDeleteNote = async (id: string) => {
+    try {
+      await noteService.deleteNote(id);
+      setNotes(notes.filter(n => n.id !== id));
+      if (selectedNoteId === id) setSelectedNoteId(null);
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
   };
 
-  const handleArchiveNote = (id: string) => {
-    setNotes(notes.map(n => n.id === id ? { ...n, isArchived: !n.isArchived } : n));
+  const handleArchiveNote = async (id: string) => {
+    try {
+      const updated = await noteService.toggleArchive(id);
+      setNotes(notes.map(n => n.id === id ? updated : n));
+    } catch (error) {
+      console.error('Error archiving note:', error);
+    }
   };
 
   const getHeaderTitle = () => {
@@ -119,19 +134,27 @@ function App() {
         />
         
         <div className="flex-1 flex min-h-0">
-          <NoteList 
-            notes={filteredNotes} 
-            selectedNoteId={selectedNoteId} 
-            onSelectNote={(note) => setSelectedNoteId(note.id)}
-            onCreateNote={handleCreateNote}
-          />
-          <NoteEditor 
-            note={selectedNote}
-            onSave={handleSaveNote}
-            onDelete={handleDeleteNote}
-            onArchive={handleArchiveNote}
-            onBack={() => setSelectedNoteId(null)}
-          />
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : (
+            <>
+              <NoteList 
+                notes={filteredNotes} 
+                selectedNoteId={selectedNoteId} 
+                onSelectNote={(note) => setSelectedNoteId(note.id)}
+                onCreateNote={handleCreateNote}
+              />
+              <NoteEditor 
+                note={selectedNote}
+                onSave={handleSaveNote}
+                onDelete={handleDeleteNote}
+                onArchive={handleArchiveNote}
+                onBack={() => setSelectedNoteId(null)}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
