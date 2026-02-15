@@ -1,16 +1,18 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faGear, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 interface HeaderProps {
   title: string;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   onThemeChange: (theme: string) => void;
+  onLogout?: () => void;
+  userEmail?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, searchQuery, setSearchQuery, onThemeChange }) => {
-  const themes = ["light", "dark", "cupcake", "bumblebee", "emerald", "corporate", "synthwave", "retro", "cyberpunk", "valentine", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black", "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter", "dim", "nord", "sunset"];
+const Header: React.FC<HeaderProps> = ({ title, searchQuery, setSearchQuery, onThemeChange, onLogout, userEmail }) => {
+  const themes = ["light", "dark",];
 
   return (
     <header className="h-16 border-b border-base-200 flex items-center justify-between px-6 bg-base-100">
@@ -32,9 +34,20 @@ const Header: React.FC<HeaderProps> = ({ title, searchQuery, setSearchQuery, onT
             <FontAwesomeIcon icon={faGear} size="lg" />
           </div>
           <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 max-h-96 overflow-y-auto">
+            <li className="menu-title text-xs">{userEmail}</li>
+            <div className="divider my-0"></div>
+            <li className="menu-title text-xs">Theme</li>
             {themes.map(theme => (
               <li key={theme}><button onClick={() => onThemeChange(theme)} className="capitalize">{theme}</button></li>
             ))}
+            <div className="divider my-0"></div>
+            {onLogout && (
+              <li>
+                <button onClick={onLogout} className="text-error">
+                  <FontAwesomeIcon icon={faSignOutAlt} /> Logout
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </div>

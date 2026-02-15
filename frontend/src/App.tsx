@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import type { Note } from './types/Note';
 import NoteList from './components/NoteList';
 import NoteEditor from './components/NoteEditor';
 import Header from './components/Header';
 import AuthPage from './components/AuthPage';
-import { noteService } from './services/noteService';
+import { createNoteService } from './services/noteService';
+import { useAuth } from './context/AuthContext';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, isLoading: authLoading, user, token, logout } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'archived' | string>('all');
@@ -16,16 +17,21 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [theme, setTheme] = useState('light');
 
+  const noteService = useMemo(
+    () => createNoteService(token, user?.id ?? null),
+    [token, user?.id]
+  );
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
   // Fetch notes from API
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user) {
       fetchNotes();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   const fetchNotes = async () => {
     try {
@@ -110,8 +116,16 @@ function App() {
     return `Notes Tagged: ${activeTab}`;
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
-    return <AuthPage onSignIn={() => setIsAuthenticated(true)} />;
+    return <AuthPage />;
   }
 
   return (
@@ -131,6 +145,8 @@ function App() {
           searchQuery={searchQuery} 
           setSearchQuery={setSearchQuery}
           onThemeChange={setTheme}
+          onLogout={logout}
+          userEmail={user?.email}
         />
         
         <div className="flex-1 flex min-h-0">

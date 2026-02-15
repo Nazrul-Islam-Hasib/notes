@@ -2,19 +2,18 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../context/AuthContext';
 
-interface AuthPageProps {
-  onSignIn: () => void;
-}
-
-const AuthPage: React.FC<AuthPageProps> = ({ onSignIn }) => {
+const AuthPage: React.FC = () => {
+  const { login, register } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [errors, setErrors] = useState<{email?: string, password?: string, confirmPassword?: string}>({});
+  const [errors, setErrors] = useState<{email?: string, password?: string, confirmPassword?: string, general?: string}>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: typeof errors = {};
     
@@ -33,15 +32,25 @@ const AuthPage: React.FC<AuthPageProps> = ({ onSignIn }) => {
       return;
     }
 
-    // Placeholder: will connect to backend later
-    console.log(isSignUp ? 'Sign up' : 'Sign in', { email, password });
-    onSignIn();
+    setIsSubmitting(true);
+    setErrors({});
+
+    try {
+      if (isSignUp) {
+        await register(email, password);
+      } else {
+        await login(email, password);
+      }
+    } catch (error) {
+      setErrors({ general: error instanceof Error ? error.message : 'Authentication failed' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleOAuthSignIn = (provider: string) => {
     // Placeholder: will connect to OAuth provider later
     console.log(`OAuth sign in with ${provider}`);
-    onSignIn();
   };
 
   return (
@@ -123,8 +132,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ onSignIn }) => {
               </div>
             )}
 
-            <button type="submit" className="btn btn-primary w-full mt-2">
-              {isSignUp ? 'Sign Up' : 'Sign In'}
+            {errors.general && (
+              <div className="alert alert-error text-sm">
+                {errors.general}
+              </div>
+            )}
+
+            <button type="submit" className="btn btn-primary w-full mt-2" disabled={isSubmitting}>
+              {isSubmitting ? <span className="loading loading-spinner loading-sm"></span> : (isSignUp ? 'Sign Up' : 'Sign In')}
             </button>
           </form>
 

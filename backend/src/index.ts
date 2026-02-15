@@ -1,15 +1,15 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+import { MONGODB_URI, PORT } from './config/env';
 import noteRoutes from './routes/noteRoutes';
+import authRoutes from './routes/authRoutes';
 
-dotenv.config();
+
 
 const app = express();
 
-const PORT = process.env.PORT || 5050;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/notes';
+
 
 // Middleware
 app.use(cors());
@@ -20,6 +20,7 @@ app.get('/test', (_req, res) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
 
 // Health check
