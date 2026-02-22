@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import { MONGODB_URI, PORT } from './config/env';
+import { DB_USER, DB_PASS, PORT } from './config/env';
 import noteRoutes from './routes/noteRoutes';
 import authRoutes from './routes/authRoutes';
 
@@ -9,7 +9,7 @@ import authRoutes from './routes/authRoutes';
 
 const app = express();
 
-
+const MONGODB_URI = `mongodb+srv://${DB_USER}:${DB_PASS}@cluster0.wltwnol.mongodb.net/Notes?appName=Cluster0`;
 
 // Middleware
 app.use(cors());
