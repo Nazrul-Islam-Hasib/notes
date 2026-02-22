@@ -7,6 +7,7 @@ import Header from './components/Header';
 import AuthPage from './components/AuthPage';
 import { createNoteService } from './services/noteService';
 import { useAuth } from './context/AuthContext';
+import { ToastContainer, toast } from 'react-toastify';
 
 function App() {
   const { isAuthenticated, isLoading: authLoading, user, token, logout } = useAuth();
@@ -16,6 +17,7 @@ function App() {
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [theme, setTheme] = useState('light');
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   const noteService = useMemo(
     () => createNoteService(token, user?.id ?? null),
@@ -77,8 +79,10 @@ function App() {
       });
       setNotes([newNote, ...notes]);
       setSelectedNoteId(newNote.id);
+      toast.success('Note created successfully!');
     } catch (error) {
       console.error('Error creating note:', error);
+      toast.error('Failed to create note');
     }
   };
 
@@ -86,8 +90,10 @@ function App() {
     try {
       const saved = await noteService.updateNote(updatedNote.id, updatedNote);
       setNotes(notes.map(n => n.id === saved.id ? saved : n));
+      toast.success('Note saved successfully!');
     } catch (error) {
       console.error('Error saving note:', error);
+      toast.error('Failed to save note');
     }
   };
 
@@ -96,8 +102,10 @@ function App() {
       await noteService.deleteNote(id);
       setNotes(notes.filter(n => n.id !== id));
       if (selectedNoteId === id) setSelectedNoteId(null);
+      toast.success('Note deleted successfully!');
     } catch (error) {
       console.error('Error deleting note:', error);
+      toast.error('Failed to delete note');
     }
   };
 
@@ -105,8 +113,10 @@ function App() {
     try {
       const updated = await noteService.toggleArchive(id);
       setNotes(notes.map(n => n.id === id ? updated : n));
+      toast.success(updated.isArchived ? 'Note archived!' : 'Note unarchived!');
     } catch (error) {
       console.error('Error archiving note:', error);
+      toast.error('Failed to archive note');
     }
   };
 
@@ -130,23 +140,31 @@ function App() {
 
   return (
     <div className="flex h-screen bg-base-200 text-base-content overflow-hidden">
-      <Sidebar 
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover />
+      <Sidebar
         tags={allTags} 
         activeTab={activeTab} 
         setActiveTab={(tab) => {
           setActiveTab(tab);
           setSelectedNoteId(null);
-        }} 
+        }}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onThemeChange={setTheme}
+        onLogout={logout}
+        userEmail={user?.email}
+        onMobileSearchChange={setShowMobileSearch}
       />
       
       <div className="flex-1 flex flex-col min-w-0">
-        <Header 
-          title={getHeaderTitle()} 
-          searchQuery={searchQuery} 
+        <Header
+          title={getHeaderTitle()}
+          searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onThemeChange={setTheme}
           onLogout={logout}
           userEmail={user?.email}
+          hideSearch={!!selectedNoteId}
         />
         
         <div className="flex-1 flex min-h-0">
@@ -161,6 +179,7 @@ function App() {
                 selectedNoteId={selectedNoteId} 
                 onSelectNote={(note) => setSelectedNoteId(note.id)}
                 onCreateNote={handleCreateNote}
+                showMobileSearch={showMobileSearch}
               />
               <NoteEditor 
                 note={selectedNote}

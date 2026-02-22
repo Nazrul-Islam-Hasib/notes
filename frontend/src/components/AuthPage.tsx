@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGoogle, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 
@@ -48,11 +47,6 @@ const AuthPage: React.FC = () => {
     }
   };
 
-  const handleOAuthSignIn = (provider: string) => {
-    // Placeholder: will connect to OAuth provider later
-    console.log(`OAuth sign in with ${provider}`);
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200 p-4">
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
@@ -68,24 +62,25 @@ const AuthPage: React.FC = () => {
             {isSignUp ? 'Create an account' : 'Welcome back'}
           </h2>
 
-          <div className="flex flex-col gap-3 mb-6">
-            <button 
-              onClick={() => handleOAuthSignIn('google')}
-              className="btn btn-outline gap-2"
-            >
-              <FontAwesomeIcon icon={faGoogle} size="lg" />
-              Continue with Google
-            </button>
-            <button 
-              onClick={() => handleOAuthSignIn('github')}
-              className="btn btn-outline gap-2"
-            >
-              <FontAwesomeIcon icon={faGithub} size="lg" />
-              Continue with GitHub
-            </button>
-          </div>
+          {/* Sign in provider for future use */}
+          {/*<div className="flex flex-col gap-3 mb-6">*/}
+          {/*  <button */}
+          {/*    onClick={() => handleOAuthSignIn('google')}*/}
+          {/*    className="btn btn-outline gap-2"*/}
+          {/*  >*/}
+          {/*    <FontAwesomeIcon icon={faGoogle} size="lg" />*/}
+          {/*    Continue with Google*/}
+          {/*  </button>*/}
+          {/*  <button */}
+          {/*    onClick={() => handleOAuthSignIn('github')}*/}
+          {/*    className="btn btn-outline gap-2"*/}
+          {/*  >*/}
+          {/*    <FontAwesomeIcon icon={faGithub} size="lg" />*/}
+          {/*    Continue with GitHub*/}
+          {/*  </button>*/}
+          {/*</div>*/}
 
-          <div className="divider text-xs">OR</div>
+          {/*<div className="divider text-xs">OR</div>*/}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="form-control">
@@ -155,6 +150,18 @@ const AuthPage: React.FC = () => {
               {isSignUp ? 'Sign In' : 'Sign Up'}
             </button>
           </p>
+
+          {/* Demo credentials hint */}
+          {!isSignUp && (
+            <div className="alert alert-info text-xs mt-4">
+              <div>
+                <p className="font-semibold">Demo Account:</p>
+                <p>Email: <span className="font-mono">user@test.com</span></p>
+                <p>Password: <span className="font-mono">12345678</span></p>
+                <p className="mt-1 text-warning-content opacity-70">⚠️ Please don't misuse this app.</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
