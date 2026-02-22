@@ -1,6 +1,6 @@
 import type { Note } from '../types/Note';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://notes-server-chi.vercel.app/api';
 
 const getAuthHeaders = (token: string | null): HeadersInit => {
   const headers: HeadersInit = { 'Content-Type': 'application/json' };

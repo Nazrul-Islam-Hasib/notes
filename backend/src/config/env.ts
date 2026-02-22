@@ -5,12 +5,6 @@ dotenv.config();
 if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET is not defined');
 }
-
-
-if (!process.env.PORT) {
-    throw new Error('PORT is not defined');
-}
-
 if (!process.env.DB_USER) {
     throw new Error('DB_USER is not defined');
 }
@@ -20,4 +14,4 @@ if (!process.env.DB_PASS) {
 export const JWT_SECRET = process.env.JWT_SECRET;
 export const DB_USER = process.env.DB_USER;
 export const DB_PASS = process.env.DB_PASS;
-export const PORT = process.env.PORT || 5050;
+export const PORT = process.env.PORT;
