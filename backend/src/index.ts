@@ -29,15 +29,17 @@ app.get('/api/health', (req, res) => {
 });
 
 // Connect to MongoDB and start server
-mongoose.connect(MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+if (process.env.NODE_ENV !== 'test') {
+  mongoose.connect(MONGODB_URI)
+    .then(() => {
+      console.log('Connected to MongoDB');
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error('MongoDB connection error:', error);
     });
-  })
-  .catch((error) => {
-    console.error('MongoDB connection error:', error);
-  });
+}
 
 export default app;
