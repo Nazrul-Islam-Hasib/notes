@@ -1,6 +1,6 @@
 import type { Note } from '../types/Note';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://notes-server-chi.vercel.app/api';
+import {ENDPOINTS} from "../config/api.ts";
 
 const getAuthHeaders = (token: string | null): HeadersInit => {
   const headers: HeadersInit = { 'Content-Type': 'application/json' };
@@ -13,7 +13,7 @@ const getAuthHeaders = (token: string | null): HeadersInit => {
 export const createNoteService = (token: string | null, userId: string | null) => ({
   async getAllNotes(): Promise<Note[]> {
     if (!userId) throw new Error('User not authenticated');
-    const response = await fetch(`${API_BASE_URL}/notes/user/${userId}`, {
+    const response = await fetch(ENDPOINTS.notes.allForUser(userId), {
       headers: getAuthHeaders(token),
     });
     if (!response.ok) throw new Error('Failed to fetch notes');
@@ -21,7 +21,7 @@ export const createNoteService = (token: string | null, userId: string | null) =
   },
 
   async getNoteById(id: string): Promise<Note> {
-    const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+    const response = await fetch(ENDPOINTS.notes.byId(id), {
       headers: getAuthHeaders(token),
     });
     if (!response.ok) throw new Error('Failed to fetch note');
@@ -30,7 +30,7 @@ export const createNoteService = (token: string | null, userId: string | null) =
 
   async createNote(note: Omit<Note, 'id'>): Promise<Note> {
     if (!userId) throw new Error('User not authenticated');
-    const response = await fetch(`${API_BASE_URL}/notes`, {
+    const response = await fetch(ENDPOINTS.notes.create, {
       method: 'POST',
       headers: getAuthHeaders(token),
       body: JSON.stringify({ ...note, userId })
@@ -45,7 +45,7 @@ export const createNoteService = (token: string | null, userId: string | null) =
   },
 
   async updateNote(id: string, note: Partial<Note>): Promise<Note> {
-    const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+    const response = await fetch(ENDPOINTS.notes.byId(id), {
       method: 'PUT',
       headers: getAuthHeaders(token),
       body: JSON.stringify(note)
@@ -55,7 +55,7 @@ export const createNoteService = (token: string | null, userId: string | null) =
   },
 
   async deleteNote(id: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+    const response = await fetch(ENDPOINTS.notes.delete(id), {
       method: 'DELETE',
       headers: getAuthHeaders(token),
     });
@@ -63,7 +63,7 @@ export const createNoteService = (token: string | null, userId: string | null) =
   },
 
   async toggleArchive(id: string): Promise<Note> {
-    const response = await fetch(`${API_BASE_URL}/notes/${id}/archive`, {
+    const response = await fetch(ENDPOINTS.notes.archive(id), {
       method: 'PATCH',
       headers: getAuthHeaders(token),
     });
